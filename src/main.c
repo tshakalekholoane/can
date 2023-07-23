@@ -87,9 +87,10 @@ int main(int argc, char* argv[argc + 1]) {
   if (sudo_user)
     must_revert(sudo_user);
 
-  // Persist error across multiple invocations.
-  int exit_status = 0;
-  for (size_t i = 1; i < n; i++)
-    exit_status = exit_status || trash_file(argv[i]);
+  int exit_status = EXIT_SUCCESS;
+  for (size_t i = 1; i < n; i++) {
+    if (!trash_file(argv[i]))
+      exit_status = EXIT_FAILURE;
+  }
   return exit_status;
 }
