@@ -1,10 +1,11 @@
 #include <errno.h>
 #include <objc/message.h>
 #include <pwd.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+#define VERSION "0.2.0"
 
 static id file_manager_default(void) {
   struct objc_class* file_manager = objc_getClass("NSFileManager");
@@ -44,6 +45,14 @@ static id url_file_url_with_path(id string) {
   return file_url;
 }
 
+static void fatalf(const char format[static 1], ...) {
+  va_list args;
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+  va_end(args);
+  exit(EXIT_FAILURE);
+}
+
 static bool trash_file(const char name[static 1]) {
   id file_manager = file_manager_default();
   id file_name = file_manager_str_with_file_system_repr(file_manager, name);
@@ -55,40 +64,36 @@ static bool trash_file(const char name[static 1]) {
   return ok;
 }
 
-static void fatalf(const char format[static 1], ...) {
-  va_list args;
-  va_start(args, format);
-  vfprintf(stderr, format, args);
-  va_end(args);
-  exit(EXIT_FAILURE);
-}
-
-// Revert the effective user id of the process to the original value
-// after running with elevated privileges. This avoids using the root
-// user's trash.
-static void must_revert(char login[static 1]) {
-  struct passwd* entry = getpwnam(login);
-  if (!entry || seteuid(entry->pw_uid))
-    fatalf(strerror(errno));
-}
-
 int main(int argc, char* argv[argc + 1]) {
+  const char* prog = argv[0];
   if (argc == 1)
-    fatalf("usage: %s file ...\n", argv[0]);
+    fatalf("usage: %s [-hV] [file ...]\n", prog);
 
-  const size_t n = argc;
-  for (size_t i = 1; i < n; i++) {
+  const char* opt = argv[1];
+  if (strcmp(opt, "-h") == 0) {
+    printf("usage: %s [-hV] [file ...]\n", prog);
+    return EXIT_SUCCESS;
+  } else if (strcmp(opt, "-V") == 0) {
+    printf("%s: %s\n", prog, VERSION);
+    return EXIT_SUCCESS;
+  }
+
+  for (int i = 1; i < argc; i++) {
     const char* name = argv[i];
     if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0 || strcmp(name, "/") == 0)
       fatalf("\"/\", \".\", and \"..\" may not be removed.\n");
   }
 
-  char* sudo_user = getenv("SUDO_USER");
-  if (sudo_user)
-    must_revert(sudo_user);
+  // Avoid using the root user trash when invoked with sudo.
+  char* logged_in = getenv("SUDO_USER");
+  if (logged_in) {
+    struct passwd* entry = getpwnam(logged_in);
+    if (!entry || seteuid(entry->pw_uid))
+      fatalf(strerror(errno));
+  }
 
   int exit_status = EXIT_SUCCESS;
-  for (size_t i = 1; i < n; i++) {
+  for (int i = 1; i < argc; i++) {
     if (!trash_file(argv[i]))
       exit_status = EXIT_FAILURE;
   }
