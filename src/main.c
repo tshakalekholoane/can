@@ -2,10 +2,11 @@
 #include <objc/message.h>
 #include <pwd.h>
 #include <stdio.h>
+#include <stdnoreturn.h>
 #include <string.h>
 #include <unistd.h>
 
-#define VERSION "0.2.0"
+#define VERSION "0.3.0"
 
 static id file_manager_default(void) {
   struct objc_class* file_manager = objc_getClass("NSFileManager");
@@ -45,7 +46,7 @@ static id url_file_url_with_path(id string) {
   return file_url;
 }
 
-static void fatalf(const char format[static 1], ...) {
+noreturn static void fatalf(const char format[static 1], ...) {
   va_list args;
   va_start(args, format);
   vfprintf(stderr, format, args);
