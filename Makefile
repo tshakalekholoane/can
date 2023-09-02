@@ -1,8 +1,6 @@
-# XXX: GCC distributed with Homebrew does not appear to support
-# compiling to aarch64.
 CC := clang
 
-CFLAGS := -framework Foundation -Wall -Wextra -pedantic -O3
+CFLAGS := -framework Foundation -Wall -Wextra -Weverything -O3
 ARCH_FLAGS := -arch
 
 SRC := src/main.c
