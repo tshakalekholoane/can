@@ -1,6 +1,8 @@
 CC := clang
 
-CFLAGS := -framework Foundation -Wall -Wextra -Weverything -O3
+CFLAGS := -framework Foundation -Wall -Wextra -Weverything -Wno-c++98-compat \
+	-Wno-declaration-after-statement -Wno-vla -Wno-poison-system-directories \
+	-Wno-format-nonliteral -O3 -std=c2x
 ARCH_FLAGS := -arch
 
 SRC := src/main.c
