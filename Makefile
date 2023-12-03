@@ -1,8 +1,10 @@
 CC := clang
 
+TAG := \"$(shell git describe --always --dirty --tags --long)\"
+
 CFLAGS := -framework Foundation -Wall -Wextra -Weverything -Wno-c++98-compat \
 	-Wno-declaration-after-statement -Wno-vla -Wno-poison-system-directories \
-	-Wno-format-nonliteral -O3 -std=c2x
+	-Wno-format-nonliteral -O3 -std=c2x -DVERSION=${TAG}
 ARCH_FLAGS := -arch
 
 SRC := src/main.c

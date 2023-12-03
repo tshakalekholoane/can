@@ -5,7 +5,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifndef VERSION
 #define VERSION "0.4.0"
+#endif
 
 static id file_manager_default(void) {
   struct objc_class* file_manager = objc_getClass("NSFileManager");
