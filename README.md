@@ -1,5 +1,7 @@
 # `can` 
 
+![Continuous Integration](https://github.com/tshakalekholoane/can/actions/workflows/ci.yaml/badge.svg)
+
 `can` is a macOS command-line utility that provides an alternative to the `rm` command. Instead of permanently deleting files and directories, `can` moves them to the user's Trash, allowing for easy recovery if needed.
 
 ## Usage
