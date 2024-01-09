@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <getopt.h>
 #include <objc/message.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -53,16 +54,33 @@ static struct objc_object* url_from_file_url_with_path(struct objc_object* strin
 }
 
 int main(int argc, char* argv[argc + 1]) {
+  bool help = false, version = false;
+  int opt;
+  while ((opt = getopt(argc, argv, "hV")) != -1) {
+    switch (opt) {
+    case 'h':
+      help = true;
+      break;
+    case 'V':
+      version = true;
+      break;
+    default:
+      fprintf(stderr, "%s\n", usage);
+      return EXIT_FAILURE;
+    }
+  }
+
   if (argc == 1) {
     fprintf(stderr, "%s\n", usage);
     return EXIT_FAILURE;
   }
 
-  const char* opt = argv[1];
-  if (strcmp(opt, "-h") == 0) {
+  if (help) {
     printf("%s\n", usage);
     return EXIT_SUCCESS;
-  } else if (strcmp(opt, "-V") == 0) {
+  }
+
+  if (version) {
     printf("can %s\n", VERSION);
     return EXIT_SUCCESS;
   }
