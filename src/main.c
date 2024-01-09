@@ -6,9 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifndef VERSION
 #define VERSION "0.4.0"
-#endif
 
 static const char* usage = "usage: can [-h | -V] file ...";
 
