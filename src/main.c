@@ -9,95 +9,93 @@
 #define VERSION "0.4.0"
 #endif
 
-static id file_manager_default(void) {
+static const char* usage = "usage: can [-h | -V] file ...";
+
+// Objective-C messaging primitives require that functions be cast to an
+// appropriate function pointer type before being called.
+
+static struct objc_object* file_manager_default(void) {
   struct objc_class* file_manager = objc_getClass("NSFileManager");
-  typedef id (*send_type)(struct objc_class*, SEL);
+  typedef struct objc_object* (*send_type)(struct objc_class*, struct objc_selector*);
   send_type func = (send_type)objc_msgSend;
-  id file_manager_default = func(file_manager, sel_registerName("defaultManager"));
-  return file_manager_default;
+  return func(file_manager, sel_registerName("defaultManager"));
 }
 
-static id file_manager_str_with_file_system_repr(id file_manager, const char str[static 1]) {
-  typedef id (*send_type)(id, SEL, const char*, unsigned long);
+static struct objc_object* file_manager_string_with_file_system_representation(struct objc_object* self, const char string[static 1]) {
+  typedef struct objc_object* (*send_type)(struct objc_object*, struct objc_selector*, const char*, unsigned long);
   send_type func = (send_type)objc_msgSend;
-  id file_name = func(file_manager, sel_registerName("stringWithFileSystemRepresentation:length:"), str, strlen(str));
-  return file_name;
+  return func(self, sel_registerName("stringWithFileSystemRepresentation:length:"), string, strlen(string));
 }
 
-static bool file_manager_trash_item_at_url(id file_manager, id url, id* error) {
-  typedef BOOL (*send_type)(id, SEL, id, void*, id*);
+static bool file_manager_trash_item_at_url(struct objc_object* self, struct objc_object* url, struct objc_object** error) {
+  typedef bool (*send_type)(struct objc_object*, struct objc_selector*, struct objc_object*, struct objc_object*, struct objc_object**);
   send_type func = (send_type)objc_msgSend;
-  bool result = func(file_manager, sel_registerName("trashItemAtURL:resultingItemURL:error:"), url, NULL, error);
-  return result;
+  return func(self, sel_registerName("trashItemAtURL:resultingItemURL:error:"), url, NULL, error);
 }
 
-static char* error_localised_description(id error) {
-  typedef id (*send_type)(id, SEL);
+static struct objc_object* error_localised_description(struct objc_object* self) {
+  typedef struct objc_object* (*send_type)(struct objc_object*, struct objc_selector*);
   send_type func = (send_type)objc_msgSend;
-  id description = func(error, sel_registerName("localizedDescription"));
-  char* description_as_utf8_str = (char*)func(description, sel_registerName("UTF8String"));
-  return description_as_utf8_str;
+  return func(self, sel_registerName("localizedDescription"));
 }
 
-static id url_file_url_with_path(id string) {
+static const char* string_encode_utf8(struct objc_object* self) {
+  typedef const char* (*send_type)(struct objc_object*, struct objc_selector*);
+  send_type func = (send_type)objc_msgSend;
+  return func(self, sel_registerName("UTF8String"));
+}
+
+static struct objc_object* url_from_file_url_with_path(struct objc_object* string) {
   struct objc_class* url = objc_getClass("NSURL");
-  typedef id (*send_type)(struct objc_class*, SEL, id);
+  typedef struct objc_object* (*send_type)(struct objc_class*, struct objc_selector*, struct objc_object*);
   send_type func = (send_type)objc_msgSend;
-  id file_url = func(url, sel_registerName("fileURLWithPath:"), string);
-  return file_url;
-}
-
-[[noreturn]] static void fatalf(const char format[static 1], ...) {
-  va_list args;
-  va_start(args, format);
-  vfprintf(stderr, format, args);
-  va_end(args);
-  exit(EXIT_FAILURE);
-}
-
-static bool trash_file(const char name[static 1]) {
-  id file_manager = file_manager_default();
-  id file_name = file_manager_str_with_file_system_repr(file_manager, name);
-  id file_url = url_file_url_with_path(file_name);
-  id err;
-  bool ok = file_manager_trash_item_at_url(file_manager, file_url, &err);
-  if (!ok)
-    fprintf(stderr, "%s\n", error_localised_description(err));
-  return ok;
+  return func(url, sel_registerName("fileURLWithPath:"), string);
 }
 
 int main(int argc, char* argv[argc + 1]) {
-  const char* prog = argv[0];
-  if (argc == 1)
-    fatalf("usage: %s [-hV] [file ...]\n", prog);
+  if (argc == 1) {
+    fprintf(stderr, "%s\n", usage);
+    return EXIT_FAILURE;
+  }
 
   const char* opt = argv[1];
   if (strcmp(opt, "-h") == 0) {
-    printf("usage: %s [-hV] [file ...]\n", prog);
+    printf("%s\n", usage);
     return EXIT_SUCCESS;
   } else if (strcmp(opt, "-V") == 0) {
-    printf("%s: %s\n", prog, VERSION);
+    printf("can %s\n", VERSION);
     return EXIT_SUCCESS;
   }
 
   for (int i = 1; i < argc; i++) {
     const char* name = argv[i];
-    if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0 || strcmp(name, "/") == 0)
-      fatalf("\"/\", \".\", and \"..\" may not be removed.\n");
+    if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0 || strcmp(name, "/") == 0) {
+      fprintf(stderr, "\"/\", \".\", and \"..\" may not be removed.\n");
+      return EXIT_FAILURE;
+    }
   }
 
-  // Avoid using the root user trash when invoked with sudo.
-  char* logged_in = getenv("SUDO_USER");
-  if (logged_in) {
-    struct passwd* entry = getpwnam(logged_in);
-    if (!entry || seteuid(entry->pw_uid))
-      fatalf(strerror(errno));
+  // Avoid using the root user's trash when invoked with sudo.
+  const char* superuser = getenv("SUDO_USER");
+  if (superuser) {
+    struct passwd* entry = getpwnam(superuser);
+    if (!entry || seteuid(entry->pw_uid)) {
+      fprintf(stderr, "%s\n", strerror(errno));
+      return EXIT_FAILURE;
+    }
   }
 
-  int exit_status = EXIT_SUCCESS;
+  int exit_code = EXIT_SUCCESS;
+  struct objc_object* file_manager = file_manager_default();
   for (int i = 1; i < argc; i++) {
-    if (!trash_file(argv[i]))
-      exit_status = EXIT_FAILURE;
+    struct objc_object* name = file_manager_string_with_file_system_representation(file_manager, argv[i]);
+    struct objc_object* url = url_from_file_url_with_path(name);
+    struct objc_object* error;
+    if (!file_manager_trash_item_at_url(file_manager, url, &error)) {
+      struct objc_object* description = error_localised_description(error);
+      fprintf(stderr, "%s\n", string_encode_utf8(description));
+      exit_code = EXIT_FAILURE;
+    }
   }
-  return exit_status;
+  return exit_code;
 }
