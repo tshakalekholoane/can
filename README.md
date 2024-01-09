@@ -5,7 +5,7 @@
 ## Usage
 
 ```
-usage: can [-hV] [file ...]
+usage: can [-h | -V] file ...
 ```
 
 ## Installation
