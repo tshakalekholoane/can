@@ -2,7 +2,7 @@ CC := clang
 
 CFLAGS := -O3 -Wall -Weverything -Wextra -Wno-c++98-compat \
 	-Wno-declaration-after-statement -Wno-format-nonliteral -Wno-vla \
-	-Wno-poison-system-directories -flto -framework Foundation -pedantic -std=c17
+	-Wno-poison-system-directories -framework Foundation -pedantic -std=c17
 
 SRC := src/main.c
 
