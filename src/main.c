@@ -2,10 +2,6 @@
 #error "This program is intended to only run on macOS."
 #endif
 
-#if __STDC_VERSION__ < 202311L
-#error "This code requires C23 or later."
-#endif
-
 #include <errno.h>
 #include <getopt.h>
 #include <objc/message.h>
