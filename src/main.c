@@ -23,7 +23,7 @@ static const char* usage = "usage: can [-h | -V] [--] file ...";
 // Objective-C messaging primitives require that functions be cast to an
 // appropriate function pointer type before being called [1].
 //
-// [1]: https://github.com/apple-oss-distributions/objc4/blob/89543e2c0f67d38ca5211cea33f42c51500287d5/runtime/message.h#L52-L53
+// [1]: https://tshaka.dev/a/7hq9i9
 
 static struct objc_object* file_manager_default_manager(void) {
   auto file_manager = objc_getClass("NSFileManager");
