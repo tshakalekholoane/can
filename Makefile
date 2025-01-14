@@ -8,11 +8,12 @@ CFLAGS = -DCAN_BUILD="\"$(BUILD)\"" -O3 -Wall -Wextra -Wno-c++98-compat \
 	-Wno-poison-system-directories -Wno-vla -framework Foundation -march=native \
 	-pedantic -std=c23
 
-.PHONY: all clean
+bin/can: src/main.o
+	mkdir -p bin
+	$(CC) $(CFLAGS) src/main.o -o bin/can
 
-all:
-	mkdir -p bin/
-	$(CC) $(CFLAGS) -o bin/can src/main.c
+src/main.o:
 
+.PHONY: clean
 clean:
-	rm -rf bin/
+	-rm bin/can src/main.o
