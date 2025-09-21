@@ -1,0 +1,37 @@
+# See https://tshaka.dev/a/18jjw37.
+
+AlignAfterOpenBracket:             BlockIndent
+AlignArrayOfStructures:            Right
+AlignConsecutiveAssignments:
+  AlignCompound:                   true
+  AlignFunctionDeclarations:       true
+  Enabled:                         true
+  PadOperators:                    true
+AlignConsecutiveBitFields:         Consecutive
+AlignConsecutiveDeclarations:      Consecutive
+AlignConsecutiveMacros:            Consecutive
+AlignEscapedNewlines:              LeftWithLastLine
+AllowShortBlocksOnASingleLine:     Empty
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine:  Empty
+BracedInitializerIndentWidth:      2
+BreakAfterAttributes:              Always
+BreakAfterReturnType:              Automatic
+BreakArrays:                       false
+BreakBeforeTernaryOperators:       false
+BreakStringLiterals:               false
+ColumnLimit:                       0
+ContinuationIndentWidth:           2
+Cpp11BracedListStyle:              false
+EnumTrailingComma:                 Remove
+IndentGotoLabels:                  false
+IndentPPDirectives:                BeforeHash
+InsertNewlineAtEOF:                true 
+KeepEmptyLines:
+  AtStartOfBlock:                  false 
+  AtStartOfFile:                   false 
+Language:                          ObjC
+PointerAlignment:                  Left
+RemoveEmptyLinesInUnwrappedLines:  true
+SeparateDefinitionBlocks:          Always
+SpaceAfterCStyleCast:              true
