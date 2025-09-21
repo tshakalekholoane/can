@@ -1,0 +1,21 @@
+name: ci
+
+on: [pull_request, push]
+
+jobs:
+  check:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: build
+        run: make
+
+      - name: run
+        run: |
+          touch x
+          bin/can x
+          if [[ -f x ]]; then
+            exit 1
+          fi
+
